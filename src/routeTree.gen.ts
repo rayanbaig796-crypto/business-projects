@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as ShareRouteImport } from './routes/share'
+import { Route as InvitationRouteImport } from './routes/invitation'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -22,6 +23,11 @@ const TemplatesRoute = TemplatesRouteImport.update({
 const ShareRoute = ShareRouteImport.update({
   id: '/share',
   path: '/share',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvitationRoute = InvitationRouteImport.update({
+  id: '/invitation',
+  path: '/invitation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EditorRoute = EditorRouteImport.update({
@@ -38,12 +44,14 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/editor': typeof EditorRoute
+  '/invitation': typeof InvitationRoute
   '/share': typeof ShareRoute
   '/templates': typeof TemplatesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/editor': typeof EditorRoute
+  '/invitation': typeof InvitationRoute
   '/share': typeof ShareRoute
   '/templates': typeof TemplatesRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/editor': typeof EditorRoute
+  '/invitation': typeof InvitationRoute
   '/share': typeof ShareRoute
   '/templates': typeof TemplatesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/editor' | '/share' | '/templates'
+  fullPaths: '/' | '/editor' | '/invitation' | '/share' | '/templates'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/editor' | '/share' | '/templates'
-  id: '__root__' | '/' | '/editor' | '/share' | '/templates'
+  to: '/' | '/editor' | '/invitation' | '/share' | '/templates'
+  id: '__root__' | '/' | '/editor' | '/invitation' | '/share' | '/templates'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EditorRoute: typeof EditorRoute
+  InvitationRoute: typeof InvitationRoute
   ShareRoute: typeof ShareRoute
   TemplatesRoute: typeof TemplatesRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/share'
       fullPath: '/share'
       preLoaderRoute: typeof ShareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invitation': {
+      id: '/invitation'
+      path: '/invitation'
+      fullPath: '/invitation'
+      preLoaderRoute: typeof InvitationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/editor': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EditorRoute: EditorRoute,
+  InvitationRoute: InvitationRoute,
   ShareRoute: ShareRoute,
   TemplatesRoute: TemplatesRoute,
 }
