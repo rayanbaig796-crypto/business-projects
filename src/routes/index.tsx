@@ -119,9 +119,8 @@ function Landing() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: i * 0.05 }}
             >
-              <Link
-                to="/editor"
-                search={{ template: t.id }}
+              <a
+                href={`/editor?template=${t.id}`}
                 className="group block overflow-hidden rounded-2xl glass transition-all hover:-translate-y-1 hover:ring-gold"
               >
                 <div className="relative aspect-[3/4] overflow-hidden" style={{ background: t.palette.bg }}>
