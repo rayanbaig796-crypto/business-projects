@@ -148,7 +148,7 @@ function Landing() {
                     {t.category.split(" ")[0]}
                   </span>
                 </div>
-              </Link>
+              </a>
             </motion.div>
           ))}
         </div>
