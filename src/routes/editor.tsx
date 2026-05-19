@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/Navbar";
 import { InvitationPreview, type InvitationData } from "@/components/InvitationPreview";
 import { getTemplate, TEMPLATES } from "@/lib/templates";
+import { useInvitationStore } from "@/lib/store";
 import {
   Upload,
   Type,
@@ -32,16 +33,18 @@ const DEFAULT: InvitationData = {
 };
 
 function Editor() {
-  const [data, setData] = useState<InvitationData>(DEFAULT);
-  const [templateId, setTemplateId] = useState<string>(() => {
-    if (typeof window === "undefined") return TEMPLATES[0].id;
+  const { data, updateData, templateId, setTemplateId, template } = useInvitationStore();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
     const sp = new URLSearchParams(window.location.search);
-    return sp.get("template") || TEMPLATES[0].id;
-  });
+    const t = sp.get("template");
+    if (t && t !== templateId) setTemplateId(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [saved, setSaved] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const template = useMemo(() => getTemplate(templateId), [templateId]);
 
   // simulated autosave
   useEffect(() => {
@@ -53,8 +56,7 @@ function Editor() {
     };
   }, [data, templateId]);
 
-  const update = <K extends keyof InvitationData>(k: K, v: InvitationData[K]) =>
-    setData((p) => ({ ...p, [k]: v }));
+  const update = <K extends keyof InvitationData>(k: K, v: InvitationData[K]) => updateData(k, v);
 
   const handleShare = () => {
     if (typeof window === "undefined") return;
@@ -165,18 +167,22 @@ function Editor() {
               {data.mapsLink && (
                 <div className="mt-2 flex items-center gap-2 rounded-lg bg-[oklch(0.85_0.13_85)/0.1] px-2 py-1.5 text-[11px] text-[oklch(0.9_0.13_85)]">
                   <Sparkles className="h-3 w-3" />
-                  QR code added to invitation
+                  Google Maps link added to invitation
                 </div>
               )}
             </Panel>
 
             <Panel icon={Type} title="Typography">
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                 {(
                   [
-                    { v: "serif", l: "Classic" },
-                    { v: "display", l: "Display" },
-                    { v: "script", l: "Script" },
+                    { v: "serif", l: "Classic", c: "font-serif text-base" },
+                    { v: "display", l: "Elegance", c: "font-display text-base" },
+                    { v: "script", l: "Vibes", c: "font-script text-xl" },
+                    { v: "cinzel", l: "Royal", c: "font-cinzel text-base" },
+                    { v: "bodoni", l: "Fashion", c: "font-bodoni text-base" },
+                    { v: "pinyon", l: "Delicate", c: "font-pinyon text-xl" },
+                    { v: "allura", l: "Flowing", c: "font-allura text-xl" },
                   ] as const
                 ).map((f) => (
                   <button
@@ -184,40 +190,42 @@ function Editor() {
                     onClick={() => update("font", f.v)}
                     className={`rounded-xl px-2 py-3 text-center transition-all ${
                       data.font === f.v
-                        ? "bg-gold-grad text-black"
+                        ? "bg-gold-grad text-black shadow-lg shadow-black/20"
                         : "glass hover:bg-white/10"
                     }`}
                   >
-                    <div className={f.v === "script" ? "font-script text-xl" : "font-serif text-base"}>
+                    <div className={`${f.c} opacity-90`}>
                       Aa
                     </div>
-                    <div className="mt-0.5 text-[10px] uppercase tracking-widest">{f.l}</div>
+                    <div className="mt-1.5 text-[9px] uppercase tracking-widest opacity-80">{f.l}</div>
                   </button>
                 ))}
               </div>
             </Panel>
 
-            <Panel icon={Palette} title="Theme">
+            <Panel icon={Palette} title="Templates">
               <div className="grid grid-cols-4 gap-2">
                 {TEMPLATES.map((t) => (
                   <button
                     key={t.id}
                     onClick={() => setTemplateId(t.id)}
                     className={`group relative aspect-square overflow-hidden rounded-xl transition-all ${
-                      templateId === t.id ? "ring-2 ring-[oklch(0.85_0.13_85)]" : "ring-1 ring-white/10"
+                      templateId === t.id
+                        ? "ring-2 ring-[oklch(0.85_0.13_85)]"
+                        : "ring-1 ring-white/10"
                     }`}
-                    style={{ background: t.palette.bg }}
+                    style={{ background: t.fallbackStyle.background }}
                     title={t.title}
                   >
                     <div
                       className="absolute inset-2 rounded-md"
                       style={{
-                        background: `linear-gradient(135deg, ${t.palette.accent}, transparent 60%)`,
+                        background: `linear-gradient(135deg, ${t.fallbackStyle.accentColor}, transparent 60%)`,
                       }}
                     />
                     <div
                       className="absolute bottom-1 left-1 right-1 truncate text-[8px] font-medium uppercase tracking-widest"
-                      style={{ color: t.palette.ink }}
+                      style={{ color: t.fallbackStyle.inkColor }}
                     >
                       {t.title.split(" ")[0]}
                     </div>
@@ -282,7 +290,9 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className={`block rounded-xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10 transition-colors focus-within:ring-[oklch(0.85_0.13_85)] ${className}`}>
+    <label
+      className={`block rounded-xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10 transition-colors focus-within:ring-[oklch(0.85_0.13_85)] ${className}`}
+    >
       <div className="mb-0.5 flex items-center gap-1 text-[10px] uppercase tracking-widest text-foreground/55">
         {Icon && <Icon className="h-3 w-3" />}
         {label}

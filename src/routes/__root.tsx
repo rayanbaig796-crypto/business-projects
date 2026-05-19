@@ -7,6 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { InvitationProvider } from "@/lib/store";
 
 import appCss from "../styles.css?url";
 
@@ -76,24 +77,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Design, customize and share luxurious animated wedding invitations with QR maps and premium microsites.",
+          "Design, customize and share luxurious animated wedding invitations with Google Maps and premium microsites.",
       },
       { name: "author", content: "ShubhVivah" },
       { property: "og:title", content: "ShubhVivah — Luxury Wedding Invitations" },
       {
         property: "og:description",
-        content: "Animated wedding invitations, premium microsites and QR maps.",
+        content: "Animated wedding invitations, premium microsites and Google Maps integration.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Great+Vibes&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Great+Vibes&family=Cinzel+Decorative:wght@400;700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Pinyon+Script&family=Allura&display=swap",
       },
     ],
   }),
@@ -122,7 +124,9 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <InvitationProvider>
+        <Outlet />
+      </InvitationProvider>
     </QueryClientProvider>
   );
 }

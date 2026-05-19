@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { QRCodeSVG } from "qrcode.react";
 import { FloatingParticles } from "@/components/FloatingParticles";
 import { getTemplate, TEMPLATES } from "@/lib/templates";
+import { useInvitationStore } from "@/lib/store";
 import type { InvitationData } from "@/components/InvitationPreview";
 import { MapPin, Heart, Calendar, Camera, Send, Sparkles } from "lucide-react";
 
@@ -34,8 +34,9 @@ function useCountdown(target: Date | null) {
 }
 
 function Microsite() {
-  const [data, setData] = useState<InvitationData>(DEFAULT);
-  const [templateId, setTemplateId] = useState<string>(TEMPLATES[0].id);
+  const store = useInvitationStore();
+  const [urlData, setUrlData] = useState<InvitationData | null>(null);
+  const [urlTemplateId, setUrlTemplateId] = useState<string | null>(null);
   const [opened, setOpened] = useState(false);
   const [rsvp, setRsvp] = useState<"yes" | "no" | null>(null);
 
@@ -48,15 +49,20 @@ function Microsite() {
       try {
         const parsed = JSON.parse(decodeURIComponent(d));
         const { template, ...rest } = parsed as InvitationData & { template?: string };
-        setData(rest);
-        if (template) setTemplateId(template);
-      } catch {}
+        setUrlData(rest);
+        if (template) setUrlTemplateId(template);
+      } catch (e) {
+        console.error("Failed to parse invitation data from URL", e);
+      }
     }
-    if (t) setTemplateId(t);
+    if (t) setUrlTemplateId(t);
   }, []);
 
+  const data = urlData || store.data;
+  const templateId = urlTemplateId || store.templateId;
+
   const template = useMemo(() => getTemplate(templateId), [templateId]);
-  const { bg, ink, accent } = template.palette;
+  const { background: bg, inkColor: ink, accentColor: accent } = template.fallbackStyle;
   const dateObj = data.date ? new Date(data.date + "T" + (data.time || "00:00")) : null;
   const cd = useCountdown(dateObj);
 
@@ -97,8 +103,10 @@ function Microsite() {
               </span>
               {data.groom}
             </div>
-            <div className="mt-8 inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs uppercase tracking-[0.3em]"
-              style={{ border: `1px solid ${accent}66`, color: accent }}>
+            <div
+              className="mt-8 inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs uppercase tracking-[0.3em]"
+              style={{ border: `1px solid ${accent}66`, color: accent }}
+            >
               <Sparkles className="h-3 w-3" /> Tap to open invitation
             </div>
           </motion.button>
@@ -128,10 +136,16 @@ function Microsite() {
           </div>
           <h1 className="font-serif text-5xl leading-tight sm:text-7xl">{data.groom}</h1>
 
-          <div className="mt-8 inline-flex items-center gap-3 rounded-full px-5 py-2 text-xs uppercase tracking-[0.3em]"
-            style={{ border: `1px solid ${accent}55`, color: accent }}>
+          <div
+            className="mt-8 inline-flex items-center gap-3 rounded-full px-5 py-2 text-xs uppercase tracking-[0.3em]"
+            style={{ border: `1px solid ${accent}55`, color: accent }}
+          >
             <Calendar className="h-3.5 w-3.5" />
-            {dateObj?.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
+            {dateObj?.toLocaleDateString(undefined, {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
             · {data.time}
           </div>
         </motion.div>
@@ -141,12 +155,14 @@ function Microsite() {
       {cd && (
         <section className="px-5 pb-16">
           <div className="mx-auto grid max-w-md grid-cols-4 gap-2 text-center">
-            {([
-              ["Days", cd.days],
-              ["Hours", cd.hours],
-              ["Min", cd.minutes],
-              ["Sec", cd.seconds],
-            ] as const).map(([label, v]) => (
+            {(
+              [
+                ["Days", cd.days],
+                ["Hours", cd.hours],
+                ["Min", cd.minutes],
+                ["Sec", cd.seconds],
+              ] as const
+            ).map(([label, v]) => (
               <div
                 key={label}
                 className="rounded-2xl p-3"
@@ -155,7 +171,10 @@ function Microsite() {
                 <div className="font-serif text-3xl" style={{ color: ink }}>
                   {String(v).padStart(2, "0")}
                 </div>
-                <div className="text-[10px] uppercase tracking-widest" style={{ color: `${ink}99` }}>
+                <div
+                  className="text-[10px] uppercase tracking-widest"
+                  style={{ color: `${ink}99` }}
+                >
                   {label}
                 </div>
               </div>
@@ -167,8 +186,9 @@ function Microsite() {
       {/* COUPLE STORY */}
       <Section title="Our Story" accent={accent}>
         <p className="mx-auto max-w-xl text-center text-sm leading-relaxed opacity-85">
-          From a chance meeting in a Mumbai café to monsoon walks in Bandra and a sunrise proposal in Udaipur —
-          our story has been a gentle, golden thread. We can't wait to begin the next chapter, with you by our side.
+          From a chance meeting in a Mumbai café to monsoon walks in Bandra and a sunrise proposal
+          in Udaipur — our story has been a gentle, golden thread. We can't wait to begin the next
+          chapter, with you by our side.
         </p>
       </Section>
 
@@ -216,36 +236,26 @@ function Microsite() {
         </div>
       </Section>
 
-      {/* VENUE + QR */}
+      {/* VENUE */}
       <Section title="Venue" accent={accent}>
-        <div className="mx-auto max-w-md rounded-3xl p-6 text-center"
-          style={{ background: `${accent}10`, border: `1px solid ${accent}30` }}>
+        <div
+          className="mx-auto max-w-md rounded-3xl p-6 text-center"
+          style={{ background: `${accent}10`, border: `1px solid ${accent}30` }}
+        >
           <MapPin className="mx-auto h-5 w-5" style={{ color: accent }} />
           <div className="mt-3 font-serif text-2xl">{data.venue}</div>
           {data.mapsLink && (
-            <>
-              <div className="mt-5 inline-flex items-center gap-3 rounded-2xl bg-white p-2">
-                <div className="rounded-md p-1" style={{ border: `1px solid ${accent}55` }}>
-                  <QRCodeSVG value={data.mapsLink} size={96} bgColor="#ffffff" fgColor="#0a0a0a" />
-                </div>
-                <div className="pr-3 text-left text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-700">
-                  Scan for
-                  <br />
-                  Venue
-                </div>
-              </div>
-              <div>
-                <a
-                  href={data.mapsLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium"
-                  style={{ background: accent, color: bg }}
-                >
-                  Open in Google Maps
-                </a>
-              </div>
-            </>
+            <div>
+              <a
+                href={data.mapsLink}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium"
+                style={{ background: accent, color: bg }}
+              >
+                Open in Google Maps
+              </a>
+            </div>
           )}
         </div>
       </Section>
@@ -286,7 +296,10 @@ function Microsite() {
         </div>
       </Section>
 
-      <footer className="py-12 text-center text-[10px] uppercase tracking-[0.4em]" style={{ color: `${ink}80` }}>
+      <footer
+        className="py-12 text-center text-[10px] uppercase tracking-[0.4em]"
+        style={{ color: `${ink}80` }}
+      >
         Made with ❤ on ShubhVivah
       </footer>
     </div>
@@ -311,15 +324,9 @@ function Section({
         transition={{ duration: 0.5 }}
         className="mb-8 text-center font-serif text-3xl sm:text-4xl"
       >
-        <span
-          className="mr-3 inline-block h-px w-8 align-middle"
-          style={{ background: accent }}
-        />
+        <span className="mr-3 inline-block h-px w-8 align-middle" style={{ background: accent }} />
         {title}
-        <span
-          className="ml-3 inline-block h-px w-8 align-middle"
-          style={{ background: accent }}
-        />
+        <span className="ml-3 inline-block h-px w-8 align-middle" style={{ background: accent }} />
       </motion.h2>
       {children}
     </section>

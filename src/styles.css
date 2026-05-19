@@ -1,4 +1,4 @@
-@import "tailwindcss" source(none);
+@import "tailwindcss";
 @source "../src";
 @import "tw-animate-css";
 
@@ -17,6 +17,11 @@
   --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
   --font-script: "Great Vibes", cursive;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  --font-cinzel: "Cinzel Decorative", serif;
+  --font-bodoni: "Bodoni Moda", serif;
+  --font-pinyon: "Pinyon Script", cursive;
+  --font-allura: "Allura", cursive;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -53,13 +58,13 @@
   --card-foreground: oklch(0.97 0.012 80);
   --popover: oklch(0.18 0.03 300);
   --popover-foreground: oklch(0.97 0.012 80);
-  --primary: oklch(0.82 0.13 80);          /* champagne gold */
+  --primary: oklch(0.82 0.13 80); /* champagne gold */
   --primary-foreground: oklch(0.16 0.025 300);
   --secondary: oklch(0.28 0.045 320);
   --secondary-foreground: oklch(0.97 0.012 80);
   --muted: oklch(0.24 0.03 300);
   --muted-foreground: oklch(0.74 0.02 80);
-  --accent: oklch(0.7 0.13 20);            /* warm rose */
+  --accent: oklch(0.7 0.13 20); /* warm rose */
   --accent-foreground: oklch(0.16 0.025 300);
   --destructive: oklch(0.62 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
@@ -74,8 +79,14 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html, body { background-color: var(--color-background); color: var(--color-foreground); }
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
   body {
     font-family: var(--font-sans);
     background-image:
@@ -85,7 +96,12 @@
     background-attachment: fixed;
   }
   h1, h2, h3, h4, .font-serif { font-family: var(--font-serif); letter-spacing: -0.01em; }
+  .font-display { font-family: var(--font-display); letter-spacing: -0.01em; }
   .font-script { font-family: var(--font-script); }
+  .font-cinzel { font-family: var(--font-cinzel); }
+  .font-bodoni { font-family: var(--font-bodoni); letter-spacing: -0.02em; }
+  .font-pinyon { font-family: var(--font-pinyon); }
+  .font-allura { font-family: var(--font-allura); }
 }
 
 @layer utilities {
@@ -102,22 +118,60 @@
   }
   .text-gold-grad {
     background: linear-gradient(135deg, #f6e5b4 0%, #d4af37 45%, #f6e5b4 100%);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
   .bg-gold-grad {
     background: linear-gradient(135deg, #f6e5b4 0%, #d4af37 50%, #b8862b 100%);
   }
-  .ring-gold { box-shadow: 0 0 0 1px oklch(0.82 0.13 80 / 0.45), 0 10px 40px -10px oklch(0.82 0.13 80 / 0.35); }
-  .glow-gold { box-shadow: 0 0 60px -10px oklch(0.82 0.13 80 / 0.5); }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { scrollbar-width: none; }
+  .ring-gold {
+    box-shadow:
+      0 0 0 1px oklch(0.82 0.13 80 / 0.45),
+      0 10px 40px -10px oklch(0.82 0.13 80 / 0.35);
+  }
+  .glow-gold {
+    box-shadow: 0 0 60px -10px oklch(0.82 0.13 80 / 0.5);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
 
-  @keyframes float-y { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-  @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
-  @keyframes pulse-glow { 0%,100%{opacity:.6} 50%{opacity:1} }
-  .animate-float { animation: float-y 6s ease-in-out infinite; }
+  @keyframes float-y {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  .animate-float {
+    animation: float-y 6s ease-in-out infinite;
+  }
   .animate-shimmer {
     background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.15), transparent);
-    background-size: 200% 100%; animation: shimmer 2.5s linear infinite;
+    background-size: 200% 100%;
+    animation: shimmer 2.5s linear infinite;
   }
 }

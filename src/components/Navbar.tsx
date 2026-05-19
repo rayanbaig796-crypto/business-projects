@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { Logo } from "./Logo";
 
 export function Navbar() {
   return (
@@ -10,16 +11,8 @@ export function Navbar() {
       className="fixed top-3 left-1/2 z-50 w-[min(1100px,calc(100%-1.5rem))] -translate-x-1/2 rounded-2xl glass-strong px-4 py-3"
     >
       <div className="flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gold-grad text-[hsl(0,0%,8%)] font-serif font-bold">
-            S
-          </div>
-          <div className="leading-tight">
-            <div className="font-serif text-lg text-gold-grad">ShubhVivah</div>
-            <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-              Luxury Invitations
-            </div>
-          </div>
+        <Link to="/" className="flex items-center">
+          <Logo />
         </Link>
         <nav className="hidden items-center gap-7 md:flex">
           {[
